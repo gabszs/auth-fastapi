@@ -49,4 +49,5 @@ repos:
         description: This hook runs MyPy to check Python type hints.
         additional_dependencies:
           - types-redis
+          - types-PyYAML
         # args: ["--explicit-package-bases"]
