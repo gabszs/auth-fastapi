@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from pydantic import EmailStr
 from pydantic import Field
 
-from app.schemas.user_schema import User
+from app.schemas.user_schema import UserSchema
 
 
 class SignIn(BaseModel):
@@ -32,4 +32,4 @@ class Token(BaseModel):
 class SignInResponse(BaseModel):
     access_token: str
     expiration: datetime
-    user_info: User
+    user_info: UserSchema

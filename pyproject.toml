@@ -20,6 +20,8 @@ dependencies = [
     "fastapi-cache2[redis] (>=0.2.2,<0.3.0)",
     "fastapi[standard] (>=0.115.12,<0.116.0)",
     "python-multipart (>=0.0.20,<0.0.21)",
+    "ulid-py (>=1.1.0,<2.0.0)",
+    "celery[rabbitmq] (>=5.5.3,<6.0.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]
@@ -40,6 +42,15 @@ types-redis = "^4.6.0.20241004"
 [tool.poetry.group.observability.dependencies]
 opentelemetry-distro = "^0.54b1"
 opentelemetry-exporter-otlp = "^1.33.1"
+
+[tool.poetry.group.worker.dependencies]
+celery = {extras = ["rabbitmq"], version = "^5.5.3"}
+
+
+[tool.poetry.group.transform.dependencies]
+jsonata = "^0.2.5"
+jmespath = "^1.0.1"
+jsonpath-ng = "^1.7.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

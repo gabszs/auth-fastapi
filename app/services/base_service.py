@@ -1,10 +1,10 @@
+from typing import Any
 from typing import Union
 from uuid import UUID
 
 from fastapi_cache import FastAPICache
 from pydantic import BaseModel
 
-from app.core.cache import CacheManager
 from app.core.telemetry import instrument
 from app.repository.base_repository import BaseRepository
 from app.schemas.base_schema import FindBase
@@ -12,9 +12,8 @@ from app.schemas.base_schema import FindBase
 
 @instrument
 class BaseService:
-    def __init__(self, repository: BaseRepository, cache: CacheManager) -> None:
+    def __init__(self, repository: BaseRepository) -> None:
         self._repository = repository
-        self._cache = cache
 
     async def invalidate_cache(self, id: Union[UUID, int]) -> None:
         try:
@@ -42,3 +41,6 @@ class BaseService:
     async def remove_by_id(self, id: Union[UUID, int], **kwargs):
         await self.invalidate_cache(id)
         return await self._repository.delete_by_id(id, **kwargs)
+
+    async def get_by_param(self, param: str, value: Any, **kwargs):
+        return await self._repository.get_by_key(param, value, **kwargs)

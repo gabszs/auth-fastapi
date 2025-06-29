@@ -5,7 +5,7 @@ from app.core.dependencies import CurrentUserDependency
 from app.schemas.auth_schema import SignIn
 from app.schemas.auth_schema import SignInResponse
 from app.schemas.auth_schema import SignUp
-from app.schemas.user_schema import User as UserSchema
+from app.schemas.user_schema import UserSchema
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

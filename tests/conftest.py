@@ -1,3 +1,4 @@
+import io
 from typing import AsyncGenerator
 from typing import Dict
 from typing import Generator
@@ -27,11 +28,21 @@ from app.main import app
 from app.models import Base
 from app.models import User
 from app.models.models_enums import UserRoles
+from app.schemas.action_schema import ActionSchema
+from app.schemas.api_key_schema import ApiKeySchema
+from app.schemas.webhook_schema import WebHookSchema
+from tests.factories import ActionFactory
+from tests.factories import ApiKeyFactory
 from tests.factories import UserFactory
+from tests.factories import WebHookFactory
+from tests.helpers import add_models_generic
 from tests.helpers import add_users_models
+from tests.helpers import get_token_by_user_id
 from tests.helpers import token
 from tests.schemas import UserModelSetup
 from tests.schemas import UserSchemaWithHashedPassword
+from tests.schemas import UserWithToken
+from tests.schemas import WebHookWithUserIdSchema
 
 
 if settings.TEST_DATABASE_URL is None:
@@ -83,6 +94,21 @@ def default_username_search_options() -> Dict[str, Optional[Union[str, int]]]:
 @pytest.fixture
 def factory_user() -> UserFactory:
     return UserFactory()
+
+
+@pytest.fixture
+def factory_webhook() -> WebHookFactory:
+    return WebHookFactory()
+
+
+@pytest.fixture
+def factory_api_key() -> UserFactory:
+    return ApiKeyFactory()
+
+
+@pytest.fixture
+def factory_action() -> ActionFactory:
+    return ActionFactory()
 
 
 @pytest.fixture
@@ -192,6 +218,13 @@ async def normal_user_token(client: AsyncClient, session: AsyncSession) -> Dict[
 
 
 @pytest.fixture()
+async def user_with_token(client: AsyncClient, session: AsyncSession) -> UserWithToken:
+    user = await add_users_models(session, index=0)
+    token = await get_token_by_user_id(user.id, client, session)  # type: ignore
+    return UserWithToken(**user.model_dump(), token=token)  # type: ignore
+
+
+@pytest.fixture()
 async def moderator_user_token(client: AsyncClient, session: AsyncSession) -> Dict[str, str]:
     return await token(client, session, user_role=UserRoles.MODERATOR)
 
@@ -224,3 +257,93 @@ async def admin_user(session: AsyncSession) -> List[Union[UserSchemaWithHashedPa
 @pytest.fixture()
 async def disable_normal_user(session: AsyncSession) -> List[Union[UserSchemaWithHashedPassword, User]]:
     return await add_users_models(session, index=0, user_role=UserRoles.BASE_USER, is_active=False)
+
+
+@pytest.fixture()
+async def action(session: AsyncSession, normal_user):
+    return await add_models_generic(session, ActionFactory, ActionSchema, index=0, user_id=normal_user.id)
+
+
+@pytest.fixture()
+async def other_action(session: AsyncSession, normal_user):
+    return await add_models_generic(
+        session,
+        ActionFactory,
+        ActionSchema,
+        index=0,
+        user_id=normal_user.id,
+    )
+
+
+@pytest.fixture()
+async def multiple_action(session: AsyncSession, normal_user):
+    return await add_models_generic(
+        session,
+        ActionFactory,
+        ActionSchema,
+        qty=4,
+        user_id=normal_user.id,
+    )
+
+
+@pytest.fixture()
+async def api_key(session: AsyncSession, normal_user):
+    return await add_models_generic(session, ApiKeyFactory, ApiKeySchema, index=0, user_id=normal_user.id)
+
+
+@pytest.fixture()
+async def other_api_key(session: AsyncSession, normal_user):
+    return await add_models_generic(
+        session,
+        ApiKeyFactory,
+        ApiKeySchema,
+        index=0,
+        user_id=normal_user.id,
+    )
+
+
+@pytest.fixture()
+async def multiple_api_key(session: AsyncSession, normal_user):
+    return await add_models_generic(session, ApiKeyFactory, ApiKeySchema, qty=4, user_id=normal_user.id)
+
+
+@pytest.fixture()
+async def webhook(session: AsyncSession, action):
+    webhook = await add_models_generic(session, WebHookFactory, WebHookSchema, index=0, action_id=action.id)
+    return WebHookWithUserIdSchema(**webhook.model_dump(), user_id=action.user_id)
+
+
+@pytest.fixture
+def yaml_file() -> tuple:
+    """Fixture that returns a YAML file ready to be sent in request"""
+    yaml_content = """
+version: "1.0"
+mappings:
+- source: "user.name"
+    target: "userName"action_with_user
+- type: "uppercase"
+    field: "userName"
+- type: "lowercase"
+    field: "userEmail"
+"""
+    yaml_bytes = yaml_content.encode("utf-8")
+    yaml_file_obj = io.BytesIO(yaml_bytes)
+
+    return ("mapping.yaml", yaml_file_obj, "application/x-yaml")
+
+
+@pytest.fixture
+def jmes_file() -> tuple:
+    """Fixture that returns a JMES file ready to be sent in request"""
+    jmes_content = """
+{
+"user_name": "user.name",
+"user_email": "user.email | lower(@)",
+"user_id": "user.id",
+"full_data": "{name: user.name, email: user.email, active: user.is_active}"
+}
+"""
+    jmes_bytes = jmes_content.encode("utf-8")
+    jmes_file_obj = io.BytesIO(jmes_bytes)
+
+    return ("mapping.jmes", jmes_file_obj, "application/jmes")

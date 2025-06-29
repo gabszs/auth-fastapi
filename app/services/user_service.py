@@ -1,18 +1,16 @@
-from app.core.cache import CacheManager
 from app.core.security import get_password_hash
 from app.core.telemetry import instrument
-from app.repository.user_repository import UserRepository
-from app.schemas.user_schema import BaseUserWithPassword
+from app.repository import UserRepository
+from app.schemas.user_schema import BaseUserWithPasswordSchema
 from app.services.base_service import BaseService
 
 
 @instrument
 class UserService(BaseService):
-    def __init__(self, user_repository: UserRepository, cache: CacheManager) -> None:
-        self.user_repository = user_repository
-        super().__init__(user_repository, cache)
+    def __init__(self, user_repository: UserRepository) -> None:
+        super().__init__(user_repository)
 
-    async def add(self, user_schema: BaseUserWithPassword):  # type: ignore
+    async def add(self, user_schema: BaseUserWithPasswordSchema):  # type: ignore
         user_schema.password = get_password_hash(user_schema.password)
         created_user = await self._repository.create(user_schema)
         delattr(created_user, "password")

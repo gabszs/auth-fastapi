@@ -9,10 +9,7 @@ from app.repository.base_repository import BaseRepository
 
 @instrument
 class UserRepository(BaseRepository):
-    def __init__(
-        self,
-        session: AsyncSession,
-    ):
+    def __init__(self, session: AsyncSession):
         self.session = session
         super().__init__(session, User)
 

@@ -3,8 +3,12 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
+from uuid import UUID
 
+import factory
 from httpx import AsyncClient
+from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_password_hash
@@ -13,7 +17,6 @@ from app.models.models_enums import UserRoles
 from tests.factories import create_factory_users
 from tests.schemas import UserModelSetup
 from tests.schemas import UserSchemaWithHashedPassword
-
 
 base_auth_route: str = "/v1/auth"
 base_users_url: str = "/v1/user"
@@ -29,6 +32,32 @@ def validate_datetime(data_string):
             return True
         except ValueError:
             return False
+
+
+async def add_models_generic(
+    session: AsyncSession,
+    factory: factory.Factory,
+    schema_class: Optional[BaseModel] = None,
+    qty: int = 1,
+    index: Optional[int] = None,
+    get_model: bool = False,
+    **kwargs,
+):
+    models = factory.create_batch(qty, **kwargs)
+    session.add_all(models)
+    await session.commit()
+
+    results = []
+    for m in models:
+        await session.refresh(m)
+        if get_model or not schema_class:
+            results.append(m)
+        else:
+            results.append(schema_class.model_validate(m))
+
+    if index is not None:
+        return results[index]
+    return results
 
 
 async def add_users_models(
@@ -74,9 +103,7 @@ async def add_users_models(
     return return_users
 
 
-async def setup_users_data(
-    session: AsyncSession, model_args: List[UserModelSetup], **kwargs
-) -> List[UserSchemaWithHashedPassword]:  # type: ignore
+async def setup_users_data(session: AsyncSession, model_args: List[UserModelSetup], **kwargs):
     return_list: List[UserSchemaWithHashedPassword] = []
     for user_setup in model_args:
         user_list = await add_users_models(
@@ -110,3 +137,22 @@ async def get_user_token(client: AsyncClient, user: UserSchemaWithHashedPassword
 async def get_user_by_index(client, index: int = 0, token_header: Optional[str] = None):
     response = await client.get(f"{base_users_url}/?ordering=username", headers=token_header)
     return response.json()["data"][index]
+
+
+async def get_token_by_user_id(user_id: UUID, client: AsyncClient, session: AsyncSession) -> Dict[str, str]:
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise ValueError(f"User with id {user_id} not found.")
+
+    test_password = "password"
+    response = await client.post(
+        f"{base_auth_route}/sign-in",
+        json={"email": user.email, "password": test_password},
+    )
+
+    if response.status_code != 200:
+        raise Exception(f"Failed to get token for user {user_id}: {response.text}")
+
+    return {"Authorization": f"Bearer {response.json()['access_token']}"}

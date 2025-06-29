@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import List
 
-from app.core.cache import CacheManager
 from app.core.exceptions import InvalidCredentials
 from app.core.security import create_access_token
 from app.core.security import get_password_hash
@@ -9,23 +8,22 @@ from app.core.security import verify_password
 from app.core.settings import settings
 from app.core.telemetry import instrument
 from app.models import User
-from app.repository.user_repository import UserRepository
+from app.repository import UserRepository
 from app.schemas.auth_schema import Payload
 from app.schemas.auth_schema import SignIn
 from app.schemas.auth_schema import SignInResponse
 from app.schemas.auth_schema import SignUp
-from app.schemas.user_schema import BaseUserWithPassword
+from app.schemas.user_schema import BaseUserWithPasswordSchema
 from app.services.base_service import BaseService
 
 
 @instrument
 class AuthService(BaseService):
-    def __init__(self, user_repository: UserRepository, cache: CacheManager) -> None:
-        self.user_repository = user_repository
-        super().__init__(user_repository, cache)
+    def __init__(self, user_repository: UserRepository) -> None:
+        super().__init__(user_repository)
 
     async def sign_in(self, sign_in_info: SignIn):
-        user: List[User] = await self.user_repository.read_by_email(email=sign_in_info.email, unique=True)
+        user: List[User] = await self._repository.read_by_email(email=sign_in_info.email, unique=True)
         if not user:
             raise InvalidCredentials(detail="Incorrect email or user not exist")
         found_user = user[0]
@@ -50,9 +48,9 @@ class AuthService(BaseService):
         return sign_in_result
 
     async def sign_up(self, user_info: SignUp) -> User:
-        user = BaseUserWithPassword(**user_info.model_dump(exclude_none=True))
+        user = BaseUserWithPasswordSchema(**user_info.model_dump(exclude_none=True))
         user.password = get_password_hash(user_info.password)
-        created_user = await self.user_repository.create(user)
+        created_user = await self._repository.create(user)
         delattr(created_user, "password")
         return created_user
 

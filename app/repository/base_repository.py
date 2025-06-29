@@ -35,17 +35,20 @@ class BaseRepository:
         except AttributeError:
             raise ValidationError(f"unprocessable entity: attribute '{schema.ordering}' does not exist")
 
-    async def get_model_by_id(
+    async def _get_model_by_id(
         self, session: AsyncSession, id: Union[UUID, int], use_select: bool = False, eager: bool = False
     ):
         logger.debug(f"Fetching {self.model.__name__} with ID {id} | select={use_select}, eager={eager}")
-        if not (use_select and eager):
+        if use_select and not eager:
             return await self.session.get(self.model, id)
 
         query = select(self.model).where(self.model.id == id)
         if eager:
             for eager_relation in getattr(self.model, "eagers", []):
                 query = query.options(joinedload(getattr(self.model, eager_relation)))
+                from icecream import ic
+
+                ic(eager_relation)
 
         result = await self.session.execute(query)
         return result.scalars().first()
@@ -94,9 +97,9 @@ class BaseRepository:
             },
         }
 
-    async def read_by_id(self, id: Union[UUID, int], eager: bool = False, use_select: bool = False):
+    async def read_by_id(self, id: Union[UUID, int], **kwargs):
         logger.debug(f"Reading {self.model.__name__} by ID: {id}")
-        result = await self.get_model_by_id(self.session, id, eager, use_select)
+        result = await self._get_model_by_id(self.session, id, **kwargs)
         if not result:
             raise NotFoundError(detail=f"Resource with id={id} not found")
         return result
@@ -128,7 +131,7 @@ class BaseRepository:
     async def update(self, id: Union[UUID, int], schema: BaseModel, use_select: bool = True):
         schema = schema.model_dump(exclude_unset=True)
         logger.debug(f"Updating {self.model.__name__} ID={id} with data: {schema}")
-        model = await self.get_model_by_id(self.session, id, use_select)
+        model = await self._get_model_by_id(self.session, id, use_select)
         if not model:
             raise NotFoundError(detail=f"Resource with id={id} not found")
         if schema == {attr: getattr(model, attr) for attr in schema.keys()}:
@@ -147,7 +150,7 @@ class BaseRepository:
 
     async def update_attr(self, id: Union[UUID, int], column: str, value: Any, use_select: bool = False):
         logger.debug(f"Updating column '{column}' of {self.model.__name__} ID={id} with value: {value}")
-        result = await self.get_model_by_id(self.session, id, use_select)
+        result = await self._get_model_by_id(self.session, id, use_select)
         if not result:
             raise NotFoundError(detail=f"Resource with id={id} not found")
         if value == getattr(result, column):
@@ -166,9 +169,28 @@ class BaseRepository:
 
     async def delete_by_id(self, id: Union[UUID, int], use_select: bool = False):
         logger.debug(f"Deleting {self.model.__name__} ID={id}")
-        result = await self.get_model_by_id(self.session, id, use_select)
+        result = await self._get_model_by_id(self.session, id, use_select)
         if not result:
-            raise NotFoundError(detail=f"not found id: {id}")
+            raise NotFoundError(detail=f"Resource with id: {id} not found")
         await self.session.delete(result)
         await self.session.commit()
         logger.info(f"{self.model.__name__} with ID={id} successfully deleted")
+
+    async def get_by_key(self, key: str, value: Any, eager: bool = False):
+        logger.debug(f"Fetching {self.model.__name__} where {key} == {value}")
+        try:
+            column_attr = getattr(self.model, key)
+        except AttributeError:
+            raise ValidationError(f"Attribute '{key}' does not exist in model {self.model.__name__}")
+
+        query = select(self.model).where(column_attr == value)
+        if eager:
+            for eager_relation in getattr(self.model, "eagers", []):
+                query = query.options(joinedload(getattr(self.model, eager_relation)))
+
+        result = await self.session.execute(query)
+        instance = result.scalars().first()
+
+        if not instance:
+            logger.info(f"No {self.model.__name__} found with {key} == {value}")
+        return instance

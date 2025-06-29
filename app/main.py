@@ -33,6 +33,7 @@ def init_app(init_db=True):
             )
 
             logger.info(f"{settings.PROJECT_NAME} initialization started.")
+            # from icecream import ic;ic(settings)
             yield
             logger.info(f"{settings.PROJECT_NAME} shutdown completed.")
             if sessionmanager._engine is not None:

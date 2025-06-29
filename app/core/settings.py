@@ -8,6 +8,10 @@ from pydantic_settings import SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=(".env", "dev.env"), env_file_encoding="utf-8")
 
+    # api envs
+    CLIENT_ID: str
+    CLIENT_SECRET: str
+
     PROJECT_NAME: str = "fastapi-auth"
 
     DATABASE_URL: str
@@ -30,12 +34,12 @@ class Settings(BaseSettings):
     ORDERING: str = "-created_at"
 
     # open-telemetry, please do not fill
-    OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: bool = True
-    OTEL_EXPORTER_OTLP_ENDPOINT: str
-    OTEL_EXPORTER_OTLP_INSECURE: str
-    OTEL_LOGS_EXPORTER: str
-    OTEL_SERVICE_NAME: str
-    OTEL_EXPORTER_OTLP_PROTOCOL: str
+    OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: Optional[bool]
+    OTEL_EXPORTER_OTLP_ENDPOINT: Optional[str] = None
+    OTEL_EXPORTER_OTLP_INSECURE: Optional[str] = None
+    OTEL_LOGS_EXPORTER: Optional[str] = None
+    OTEL_SERVICE_NAME: Optional[str] = None
+    OTEL_EXPORTER_OTLP_PROTOCOL: Optional[str] = None
 
     # swagger app config settings
     title: str = "auth-Api"

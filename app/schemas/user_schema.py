@@ -7,45 +7,34 @@ from pydantic import EmailStr
 from pydantic import Field
 
 from app.models.models_enums import UserRoles
-from app.schemas.base_schema import AllOptional
-from app.schemas.base_schema import FindBase
 from app.schemas.base_schema import FindModelResult
 from app.schemas.base_schema import ModelBaseInfo
 
 
-class BaseUser(BaseModel):
+class BaseUserSchema(BaseModel):
     email: EmailStr = Field(default="test@test.com")
     username: str = Field(default="test")
 
 
-class BaseUserWithPassword(BaseUser):
+class BaseUserWithPasswordSchema(BaseUserSchema):
     password: str = Field(default="test")
 
 
-class User(BaseUser, ModelBaseInfo):
+class UserSchema(BaseUserSchema, ModelBaseInfo):
     model_config = ConfigDict(from_attributes=True)
-
     is_active: bool
     role: UserRoles
 
 
-class OptionalUser(User, metaclass=AllOptional):
-    ...
-
-
-class FindUser(FindBase, BaseUser, metaclass=AllOptional):
-    ...
-
-
-class UpsertUser(BaseModel):
+class UserUpdateSchema(BaseModel):
     email: Optional[EmailStr]
     username: Optional[str]
     is_active: Optional[bool]
 
 
-class FindUserResult(FindModelResult):
-    data: List[User]
+class UserListResultSchema(FindModelResult):
+    data: List[UserSchema]
 
 
-class UserWithCleanPassword(BaseUserWithPassword):
+class UserWithCleanPasswordSchema(BaseUserWithPasswordSchema):
     clean_password: str
