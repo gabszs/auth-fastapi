@@ -13,7 +13,7 @@ COPY pyproject.toml poetry.lock ./
 
 #RUN touch README.md
 
-RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
+RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without transform --without dev --no-root
 
 FROM python:3.13-alpine as runtime
 
