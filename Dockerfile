@@ -22,7 +22,7 @@ ENV VIRTUAL_ENV=/app/.venv \
 
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
-COPY worker /.worker
+COPY worker /worker
 COPY app ./app
 COPY pyproject.toml poetry.lock ./
 COPY migrations ./migrations
