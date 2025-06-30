@@ -1,6 +1,6 @@
 from celery import Celery
-
-queue = Celery("adapter_worker", broker="amqp://guest:guest@localhost:5672//", backend="redis://localhost:6379/0")
+from app.core.settings import settings
+queue = Celery("adapter_worker", broker=settings.RABBITMQ_URL, backend=f"{settings.REDIS_URL}/0")
 
 queue.conf.update(
     task_serializer="json",

@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 
     # cache settings
     REDIS_URL: str
+    RABBITMQ_URL: str
     CACHE_TTS: int = 360
     CACHE_PREFIX: str = "auth-Api"
     CACHE_STATUS_HEADER: str = "x-api-cache"
