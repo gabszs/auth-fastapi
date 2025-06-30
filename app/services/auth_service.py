@@ -47,7 +47,7 @@ class AuthService(BaseService):
             user_info=found_user,
         )
 
-        logger.info(f"User with id: {user.id} successifully signed-in")
+        logger.info(f"User with id: {found_user.id} successifully signed-in")
         return sign_in_result
 
     async def sign_up(self, user_info: SignUp) -> User:
