@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  api:
+    image: gabzsz/auth-integrations
+    ports:
+      - 9988:80
+    env_file:
+      - stack.env
+    depends_on:
+      - database
+      - redis
+      - rabbitmq
+
+  database:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_DB: app_db
+      POSTGRES_PASSWORD: app_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  test_database:
+    image: postgres
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_DB: app_db
+      POSTGRES_PASSWORD: app_password
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+volumes:
+  postgres_data:
