@@ -4,6 +4,7 @@ from uuid import UUID
 from app.core.exceptions import AuthError
 from app.core.exceptions import NotFoundError
 from app.core.telemetry import instrument
+from app.core.telemetry import logger
 from app.repository import ActionRepository
 from app.repository import WebHookRepository
 from app.schemas.webhook_schema import BaseWebHookSchema
@@ -23,9 +24,11 @@ class WebHookService(BaseService):
         action = await self._action_repository.read_by_id(schema.action_id)
         if action.user_id != user_id:
             raise NotFoundError(detail=f"Resource with id={action.user_id} not found")
-
         input_schema = CompleteWebHookSchema(**schema.model_dump(), is_active=True)
-        return await self._repository.create(input_schema, **kwargs)
+
+        webhook = await self._repository.create(input_schema, **kwargs)
+        logger.info(f"Webhook sucessifuly created with id: {webhook.id}")
+        return webhook
 
     async def trigger_webhook(self, id: UUID, api_key: Any):
         webhook = await self._repository.read_by_id(id, eager=True)  # se nao existir, ele ja dispara o erro
@@ -40,4 +43,5 @@ class WebHookService(BaseService):
             "BEES_URL_V1": webhook.action.body_version,
             "MAPPING": webhook.action.file_mapping,
         }
+        logger.info(f"Webhook with id: {webhook.id} succesifully triggered", extra=input_data)
         create_items.delay(input_data)

@@ -1,5 +1,6 @@
 from app.core.security import get_password_hash
 from app.core.telemetry import instrument
+from app.core.telemetry import logger
 from app.repository import UserRepository
 from app.schemas.user_schema import BaseUserWithPasswordSchema
 from app.services.base_service import BaseService
@@ -14,6 +15,7 @@ class UserService(BaseService):
         user_schema.password = get_password_hash(user_schema.password)
         created_user = await self._repository.create(user_schema)
         delattr(created_user, "password")
+        logger.info(f"User successiffuly created with id: {created_user.id}")
         return created_user
 
     # will come here later, but for now only admin can touch this method

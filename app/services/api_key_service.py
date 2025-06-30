@@ -1,6 +1,7 @@
 import ulid
 
 from app.core.telemetry import instrument
+from app.core.telemetry import logger
 from app.repository import ApiKeyRepository
 from app.schemas.api_key_schema import BaseApiKeySchema
 from app.schemas.api_key_schema import CompleteApiKeySchema
@@ -16,4 +17,6 @@ class ApiKeyService(BaseService):
         input_schema = CompleteApiKeySchema(
             **schema.model_dump(), token=f"apk_{username}_{ulid.new().str.lower()}", is_active=True
         )
-        return await self._repository.create(input_schema, **kwargs)
+        api_key = await self._repository.create(input_schema, **kwargs)
+        logger.info(f"Api-key successifully created with id: {api_key.id}")
+        return api_key

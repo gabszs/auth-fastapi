@@ -7,6 +7,7 @@ from app.core.security import get_password_hash
 from app.core.security import verify_password
 from app.core.settings import settings
 from app.core.telemetry import instrument
+from app.core.telemetry import logger
 from app.models import User
 from app.repository import UserRepository
 from app.schemas.auth_schema import Payload
@@ -45,6 +46,8 @@ class AuthService(BaseService):
             expiration=expiration_datetime,
             user_info=found_user,
         )
+
+        logger.info(f"User with id: {user.id} successifully signed-in")
         return sign_in_result
 
     async def sign_up(self, user_info: SignUp) -> User:
@@ -52,6 +55,8 @@ class AuthService(BaseService):
         user.password = get_password_hash(user_info.password)
         created_user = await self._repository.create(user)
         delattr(created_user, "password")
+
+        logger.info(f"User successiffuly created with id: {created_user.id}")
         return created_user
 
     async def refresh_token(self, current_user: User):
@@ -67,6 +72,8 @@ class AuthService(BaseService):
             expiration=expiration_datetime,
             user_info=current_user,
         )
+
+        logger.info("Token sucessifully refreshed")
         return sign_in_result
 
 
