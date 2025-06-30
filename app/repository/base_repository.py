@@ -46,9 +46,6 @@ class BaseRepository:
         if eager:
             for eager_relation in getattr(self.model, "eagers", []):
                 query = query.options(joinedload(getattr(self.model, eager_relation)))
-                from icecream import ic
-
-                ic(eager_relation)
 
         result = await self.session.execute(query)
         return result.scalars().first()
