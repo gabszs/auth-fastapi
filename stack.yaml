@@ -2,35 +2,35 @@ services:
   app:
     image: gabzsz/auth_converter:latest
     ports:
-      - "8000:80"
+      - "8523:80"
     env_file:
       - stack.env
-    # depends_on:
-    #   database:
-    #     condition: service_healthy
-    #   redis:
-    #     condition: service_healthy
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
 
-  # database:
-  #   image: postgres:16-alpine
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 5
-  #   restart: unless-stopped
+  database:
+    image: postgres:16-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
-  # redis:
-  #   image: redis:7-alpine
-  #   healthcheck:
-  #     test: ["CMD", "redis-cli", "ping"]
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 5
-  #   restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
 volumes:
   postgres_data:
