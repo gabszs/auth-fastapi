@@ -6,10 +6,8 @@ services:
     env_file:
       - stack.env
     depends_on:
-      database:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - database
+      - redis
     restart: unless-stopped
 
   database:
