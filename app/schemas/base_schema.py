@@ -22,6 +22,11 @@ class Message(BaseModel):
     detail: str
 
 
+class HealthResponse(BaseModel):
+    status: str
+    timestamp: datetime
+
+
 class NoContent(BaseModel):
     pass
 
@@ -69,10 +74,14 @@ class FindBase(BaseModel):
     @model_validator(mode="after")
     def validate_date_ranges(self):
         if self.created_after is not None and self.created_on_or_after is not None:
-            raise exceptions.validation_error("CONFLICTING_DATE_FILTERS: Cannot use both created_after and created_on_or_after")
+            raise exceptions.validation_error(
+                "CONFLICTING_DATE_FILTERS: Cannot use both created_after and created_on_or_after"
+            )
 
         if self.created_before is not None and self.created_on_or_before is not None:
-            raise exceptions.validation_error("CONFLICTING_DATE_FILTERS: Cannot use both created_before and created_on_or_before")
+            raise exceptions.validation_error(
+                "CONFLICTING_DATE_FILTERS: Cannot use both created_before and created_on_or_before"
+            )
 
         start_date = self.created_after or self.created_on_or_after
         end_date = self.created_before or self.created_on_or_before
@@ -83,13 +92,13 @@ class FindBase(BaseModel):
         return self
 
 
-class SearchMetadata(FindBase):
+class Metadata(FindBase):
     total_count: Optional[int]
 
 
 class FindResult(BaseModel):
     data: Optional[List]
-    search_metadata: Optional[SearchMetadata]
+    metadata: Optional[Metadata]
 
 
 class FindDateRange(BaseModel):
@@ -102,7 +111,7 @@ class FindDateRange(BaseModel):
 class FindModelResult(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     data: List[Any]
-    search_metadata: SearchMetadata
+    metadata: Metadata
 
 
 class Blank(BaseModel):

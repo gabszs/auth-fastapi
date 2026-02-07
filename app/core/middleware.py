@@ -31,7 +31,7 @@ async def otel_setup(request: Request, call_next) -> None:
 
     event: dict = {
         # Service attributes
-        "service.environment": settings.ENVIRONMENT,
+        "service.environment": settings.OTEL_SERVICE_NAMESPACE,
         "service.owner.name": settings.SERVICE_OWNER_NAME,
         "service.owner.url": settings.SERVICE_OWNER_URL,
         "service.owner.contact": settings.SERVICE_OWNER_CONTACT,

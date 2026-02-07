@@ -1,14 +1,16 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
+from fastapi import Request
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
-from app.core.middleware import otel_setup
-from app.core.telemetry import logger
+
 from app.core.database import sessionmanager
+from app.core.middleware import otel_setup
 from app.core.settings import settings
+from app.core.telemetry import logger
 from app.routes import app_routes
 
 
@@ -20,12 +22,14 @@ async def lifespan(app: FastAPI):
     yield
     logger.info(f"{settings.OTEL_SERVICE_NAME} shutdown completed.")
 
+
 def init_app(init_db=True):
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     logging.getLogger("opentelemetry").propagate = False
 
     if init_db:
+
         @asynccontextmanager
         async def lifespan(app: FastAPI):
             sessionmanager.init(settings.DATABASE_URL)
@@ -42,7 +46,7 @@ def init_app(init_db=True):
             logger.info(f"{settings.PROJECT_NAME} shutdown completed.")
             if sessionmanager._engine is not None:
                 await sessionmanager.close()
-        
+
     app = FastAPI(
         title=settings.title,
         description=settings.description,
@@ -50,6 +54,7 @@ def init_app(init_db=True):
         summary=settings.summary,
         lifespan=lifespan,
     )
+
     @app.middleware("http")
     async def otel_setup_middleware(request: Request, call_next):
         return await otel_setup(request, call_next)

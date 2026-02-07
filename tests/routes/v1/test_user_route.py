@@ -58,7 +58,7 @@ async def test_get_all_users_should_return_200_OK_GET(
     assert response.status_code == 200
     assert len(users_json) == expected_lenght
     assert (
-        response_json["search_metadata"]
+        response_json["metadata"]
         == default_username_search_options | {"total_count": expected_lenght} | datetime_params
     )
     assert all(
@@ -96,7 +96,7 @@ async def test_get_all_users_with_page_size_should_return_200_OK_GET(
         ]
     )
     assert len(response_json["data"]) == 5
-    assert response_json["search_metadata"] == query_find_parameters | {"total_count": 5} | datetime_params
+    assert response_json["metadata"] == query_find_parameters | {"total_count": 5} | datetime_params
     assert all([validate_datetime(user["created_at"]) for user in response_json["data"]])
     assert all([validate_datetime(user["updated_at"]) for user in response_json["data"]])
 
@@ -133,7 +133,7 @@ async def test_get_all_users_with_pagination_should_return_200_OK_GET(
     )
     assert len(response_json["data"]) == query_find_parameters["page_size"]
     assert (
-        response_json["search_metadata"]
+        response_json["metadata"]
         == query_find_parameters | {"total_count": query_find_parameters["page_size"]} | datetime_params
     )
     assert all([validate_datetime(user["created_at"]) for user in response_json["data"]])
@@ -903,7 +903,7 @@ async def test_get_users_with_valid_date_range_after_before_should_return_200_GE
 
     assert response.status_code == 200
     assert "data" in response.json()
-    assert "search_metadata" in response.json()
+    assert "metadata" in response.json()
 
 
 @pytest.mark.anyio
@@ -924,7 +924,7 @@ async def test_get_users_with_valid_date_range_on_or_after_on_or_before_should_r
 
     assert response.status_code == 200
     assert "data" in response.json()
-    assert "search_metadata" in response.json()
+    assert "metadata" in response.json()
 
 
 @pytest.mark.anyio
@@ -945,7 +945,7 @@ async def test_get_users_with_mixed_valid_date_range_should_return_200_GET(
 
     assert response.status_code == 200
     assert "data" in response.json()
-    assert "search_metadata" in response.json()
+    assert "metadata" in response.json()
 
 
 @pytest.mark.anyio

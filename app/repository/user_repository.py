@@ -24,14 +24,8 @@ class UserRepository(BaseRepository):
             await self.session.refresh(model)
         except IntegrityError as e:
             if "Key (email)" in str(e.orig):
-                raise exceptions.duplicated_error(
-                    detail="Email already registered"
-                )
+                raise exceptions.duplicated_error(detail="Email already registered")
             if "Key (username)" in str(e.orig):
-                raise exceptions.duplicated_error(
-                    detail="Username already registered"
-                )
-            raise exceptions.duplicated_error(
-                detail=f"{self.model.__tablename__.capitalize()[:-1]} already registered"
-            )
+                raise exceptions.duplicated_error(detail="Username already registered")
+            raise exceptions.duplicated_error(detail=f"{self.model.__tablename__.capitalize()[:-1]} already registered")
         return model

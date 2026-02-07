@@ -1,8 +1,8 @@
 from unittest.mock import AsyncMock
 
 import pytest
-
 from fastapi import HTTPException
+
 from app.core.security import authorize
 from app.models.models_enums import UserRoles
 

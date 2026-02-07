@@ -15,9 +15,7 @@ logger = logging.getLogger(__name__)
 
 @instrument
 class BaseService:
-    def __init__(
-        self, repository: BaseRepository, cache: CacheManager
-    ) -> None:
+    def __init__(self, repository: BaseRepository, cache: CacheManager) -> None:
         self._repository = repository
         self._cache = cache
 
@@ -46,9 +44,7 @@ class BaseService:
         await self.invalidate_cache(id)
         return await self._repository.update(id, schema, **kwargs)
 
-    async def patch_attr(
-        self, id: Union[UUID, int], attr: str, value, **kwargs
-    ):
+    async def patch_attr(self, id: Union[UUID, int], attr: str, value, **kwargs):
         await self.invalidate_cache(id)
         return await self._repository.update_attr(id, attr, value, **kwargs)
 

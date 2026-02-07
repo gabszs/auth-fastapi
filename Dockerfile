@@ -14,6 +14,9 @@ COPY pyproject.toml poetry.lock ./
 #RUN touch README.md
 
 RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --no-root
+ENV PATH="/app/.venv/bin:$PATH"
+# Nota: opentelemetry-bootstrap geralmente baixa pacotes.
+RUN opentelemetry-bootstrap -a install
 
 FROM python:3.13-alpine as runtime
 
@@ -28,7 +31,6 @@ COPY migrations ./migrations
 COPY alembic.ini ./
 
 EXPOSE 80
-RUN opentelemetry-bootstrap -a install
 
 CMD [ "sh", "-c", "alembic upgrade head && opentelemetry-instrument uvicorn --proxy-headers --host 0.0.0.0 --port 80 app.main:app"]
 # CMD ["opentelemetry-instrument", "uvicorn", "--host", "0.0.0.0", "--port", "80", "app.main:app"]

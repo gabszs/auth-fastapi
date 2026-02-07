@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     # open-telemetry, please do not fill
     OTEL_SERVICE_NAME: str
     OTEL_PYTHON_LOG_LEVEL: str = "INFO"
-    ENVIRONMENT: str = "development"
+    OTEL_SERVICE_NAMESPACE: str = "development"
     SERVICE_OWNER_NAME: str = ""
     SERVICE_OWNER_URL: str = ""
     SERVICE_OWNER_CONTACT: str = ""
