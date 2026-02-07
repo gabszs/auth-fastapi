@@ -8,6 +8,7 @@ from app.core.cache import cache_key_builder
 from app.core.dependencies import CurrentUserDependency
 from app.core.dependencies import FindBase
 from app.core.dependencies import UserServiceDependency
+from app.core.telemetry import logger
 from app.core.security import authorize
 from app.models.models_enums import UserRoles
 from app.schemas.base_schema import Message
@@ -26,6 +27,7 @@ async def get_user_list(
     current_user: CurrentUserDependency,
     find_query: FindBase = Depends(),
 ):
+    logger.info("GET /user/ - user_id=%s", current_user.id)
     return await service.get_list(find_query)
 
 
@@ -37,11 +39,13 @@ async def get_by_id(
     service: UserServiceDependency,
     current_user: CurrentUserDependency,
 ):
+    logger.info("GET /user/%s - user_id=%s", id, current_user.id)
     return await service.get_by_id(id)
 
 
 @router.post("/", status_code=201, response_model=User)
 async def create_user(user: BaseUserWithPassword, service: UserServiceDependency):
+    logger.info("POST /user/ - email=%s", user.email)
     return await service.add(user)
 
 
@@ -55,6 +59,7 @@ async def update_user(
     service: UserServiceDependency,
     current_user: CurrentUserDependency,
 ):
+    logger.info("PUT /user/%s - user_id=%s", id, current_user.id)
     return await service.patch(id=id, schema=user)
 
 
@@ -65,6 +70,7 @@ async def enabled_user(
     service: UserServiceDependency,
     current_user: CurrentUserDependency,
 ):
+    logger.info("PATCH /user/enable_user/%s - user_id=%s", id, current_user.id)
     await service.patch_attr(id=id, attr="is_active", value=True)
     return Message(detail="User has been enabled successfully")
 
@@ -76,6 +82,7 @@ async def disable_user(
     service: UserServiceDependency,
     current_user: CurrentUserDependency,
 ):
+    logger.info("PATCH /user/disable/%s - user_id=%s", id, current_user.id)
     await service.patch_attr(id=id, attr="is_active", value=False)
     return Message(detail="User has been desabled successfully")
 
@@ -87,4 +94,5 @@ async def delete_user(
     service: UserServiceDependency,
     current_user: CurrentUserDependency,
 ):
+    logger.info("DELETE /user/%s - user_id=%s", id, current_user.id)
     await service.remove_by_id(id)
