@@ -14,7 +14,7 @@ from pydantic import model_validator
 from pydantic import ValidationInfo
 from pydantic._internal._model_construction import ModelMetaclass
 
-from app.core.exceptions import ValidationError
+from app.core.exceptions import exceptions
 from app.core.settings import settings
 
 
@@ -59,26 +59,26 @@ class FindBase(BaseModel):
         try:
             input = int(value)
             if input < 0:
-                raise ValidationError("Page size must be a positive integer")
+                raise exceptions.validation_error("Page size must be a positive integer")
             return input
         except Exception as _:
             if value != "all":
-                raise ValidationError("Page size must be 'all' or a positive integer")
+                raise exceptions.validation_error("Page size must be 'all' or a positive integer")
             return value
 
     @model_validator(mode="after")
     def validate_date_ranges(self):
         if self.created_after is not None and self.created_on_or_after is not None:
-            raise ValidationError("CONFLICTING_DATE_FILTERS: Cannot use both created_after and created_on_or_after")
+            raise exceptions.validation_error("CONFLICTING_DATE_FILTERS: Cannot use both created_after and created_on_or_after")
 
         if self.created_before is not None and self.created_on_or_before is not None:
-            raise ValidationError("CONFLICTING_DATE_FILTERS: Cannot use both created_before and created_on_or_before")
+            raise exceptions.validation_error("CONFLICTING_DATE_FILTERS: Cannot use both created_before and created_on_or_before")
 
         start_date = self.created_after or self.created_on_or_after
         end_date = self.created_before or self.created_on_or_before
 
         if start_date is not None and end_date is not None and start_date >= end_date:
-            raise ValidationError("INVALID_DATE_RANGE: Start date must be before end date")
+            raise exceptions.validation_error("INVALID_DATE_RANGE: Start date must be before end date")
 
         return self
 

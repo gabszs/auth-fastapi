@@ -6,7 +6,7 @@ from pydantic_settings import SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=(".env", "dev.env"), env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=(".env", "dev.env"), env_file_encoding="utf-8", extra="ignore")
 
     PROJECT_NAME: str = "fastapi-auth"
 
@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     # cache settings
     REDIS_URL: str
     CACHE_TTS: int = 360
-    CACHE_PREFIX: str = "auth-Api"
+    CACHE_PREFIX: str = "auth-api"
     CACHE_STATUS_HEADER: str = "x-api-cache"
 
     SECRET_KEY: str = ""
@@ -30,12 +30,18 @@ class Settings(BaseSettings):
     ORDERING: str = "-created_at"
 
     # open-telemetry, please do not fill
-    OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: bool = True
-    OTEL_EXPORTER_OTLP_ENDPOINT: str
-    OTEL_EXPORTER_OTLP_INSECURE: str
-    OTEL_LOGS_EXPORTER: str
     OTEL_SERVICE_NAME: str
-    OTEL_EXPORTER_OTLP_PROTOCOL: str
+    OTEL_PYTHON_LOG_LEVEL: str = "INFO"
+    ENVIRONMENT: str = "development"
+    SERVICE_OWNER_NAME: str = ""
+    SERVICE_OWNER_URL: str = ""
+    SERVICE_OWNER_CONTACT: str = ""
+    SERVICE_OWNER_DISCORD: str = ""
+    SERVICE_VERSION: str = ""
+    COMMIT_HASH: str = ""
+    COMMIT_BRANCH: str = ""
+    DEPLOYMENT_USER: str = ""
+    DEPLOYMENT_TRIGGER: str = ""
 
     # swagger app config settings
     title: str = "auth-Api"

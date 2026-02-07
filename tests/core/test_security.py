@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.core.exceptions import AuthError
+from fastapi import HTTPException
 from app.core.security import authorize
 from app.models.models_enums import UserRoles
 
@@ -35,7 +35,7 @@ async def test_authorize_with_invalid_role(mock_function):
     user = AsyncMock(role=UserRoles.BASE_USER, id=123)
     kwargs = {"current_user": user, "id": 123}
     decorated_func = authorize(role=[UserRoles.MODERATOR])(mock_function)
-    with pytest.raises(AuthError):
+    with pytest.raises(HTTPException):
         await decorated_func(**kwargs)
 
 
@@ -44,7 +44,7 @@ async def test_authorize_with_invalid_id(mock_function):
     user = AsyncMock(role=UserRoles.BASE_USER, id=123)
     kwargs = {"current_user": user, "id": 456}
     decorated_func = authorize(role=[UserRoles.MODERATOR], allow_same_id=True)(mock_function)
-    with pytest.raises(AuthError):
+    with pytest.raises(HTTPException):
         await decorated_func(**kwargs)
 
 
@@ -53,5 +53,5 @@ async def test_authorize_without_same_id(mock_function):
     user = AsyncMock(role=UserRoles.BASE_USER, id=123)
     kwargs = {"current_user": user, "id": 124}
     decorated_func = authorize(role=[UserRoles.MODERATOR], allow_same_id=False)(mock_function)
-    with pytest.raises(AuthError):
+    with pytest.raises(HTTPException):
         await decorated_func(**kwargs)

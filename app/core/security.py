@@ -12,7 +12,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from fastapi.security import HTTPBearer
 from jose import jwt
 
-from app.core.exceptions import AuthError
+from app.core.exceptions import exceptions
 from app.core.settings import settings
 from app.models.models_enums import UserRoles
 
@@ -29,10 +29,10 @@ def authorize(role: List[UserRoles], allow_same_id: bool = False):
             if allow_same_id:
                 is_same_id = kwargs.get("current_user").id == kwargs.get("id")
                 if not is_same_id and not have_authorization:
-                    raise AuthError("Not enough permissions")
+                    raise exceptions.auth_error("Not enough permissions")
                 return await func(*args, **kwargs)
             if not have_authorization:
-                raise AuthError("Not enough permissions")
+                raise exceptions.auth_error("Not enough permissions")
             return await func(*args, **kwargs)
 
         return wrapper
@@ -89,12 +89,12 @@ class JWTBearer(HTTPBearer):
 
         if credentials:
             if not credentials.scheme == "Bearer":
-                raise AuthError(detail="Authentication failed: invalid scheme, expected 'Bearer'")
+                raise exceptions.auth_error(detail="Authentication failed: invalid scheme, expected 'Bearer'")
             if not self.verify_jwt(credentials.credentials):
-                raise AuthError(detail="Authentication failed: token is invalid or expired")
+                raise exceptions.auth_error(detail="Authentication failed: token is invalid or expired")
             return credentials.credentials
         else:
-            raise AuthError(detail="Authentication failed: no authorization token provided")
+            raise exceptions.auth_error(detail="Authentication failed: no authorization token provided")
 
     def verify_jwt(self, jwt_token: str) -> bool:
         is_token_valid: bool = False

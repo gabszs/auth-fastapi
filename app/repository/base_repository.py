@@ -10,10 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.core.exceptions import BadRequestError
-from app.core.exceptions import DuplicatedError
-from app.core.exceptions import NotFoundError
-from app.core.exceptions import ValidationError
+from app.core.exceptions import exceptions
 from app.core.telemetry import instrument
 from app.core.telemetry import logger
 from app.schemas.base_schema import FindBase
@@ -33,7 +30,10 @@ class BaseRepository:
                 else getattr(self.model, schema.ordering).asc()
             )
         except AttributeError:
-            raise ValidationError(f"unprocessable entity: attribute '{schema.ordering}' does not exist")
+            raise exceptions.validation_error(
+                f"unprocessable entity: attribute"
+                f" '{schema.ordering}' does not exist"
+            )
 
     async def get_model_by_id(
         self, session: AsyncSession, id: Union[UUID, int], use_select: bool = False, eager: bool = False
@@ -98,7 +98,9 @@ class BaseRepository:
         logger.debug(f"Reading {self.model.__name__} by ID: {id}")
         result = await self.get_model_by_id(self.session, id, eager, use_select)
         if not result:
-            raise NotFoundError(detail=f"Resource with id={id} not found")
+            raise exceptions.not_found(
+                detail=f"Resource with id={id} not found"
+            )
         return result
 
     async def read_by_email(self, email: EmailStr, unique: bool = False):
@@ -120,9 +122,11 @@ class BaseRepository:
             await self.session.refresh(model)
             logger.info(f"{self.model.__name__} created with ID {model.id}")
         except IntegrityError:
-            raise DuplicatedError(detail=f"{self.model.__tablename__.capitalize()[:-1]} already registered")
+            raise exceptions.duplicated_error(
+                detail=f"{self.model.__tablename__.capitalize()[:-1]} already registered"
+            )
         except Exception as error:
-            raise BadRequestError(str(error))
+            raise exceptions.bad_request(str(error))
         return model
 
     async def update(self, id: Union[UUID, int], schema: BaseModel, use_select: bool = True):
@@ -130,10 +134,14 @@ class BaseRepository:
         logger.debug(f"Updating {self.model.__name__} ID={id} with data: {schema}")
         model = await self.get_model_by_id(self.session, id, use_select)
         if not model:
-            raise NotFoundError(detail=f"Resource with id={id} not found")
+            raise exceptions.not_found(
+                detail=f"Resource with id={id} not found"
+            )
         if schema == {attr: getattr(model, attr) for attr in schema.keys()}:
-            raise BadRequestError(
-                detail="Update aborted: no changes were provided or values are identical to existing ones"
+            raise exceptions.bad_request(
+                detail="Update aborted: no changes were"
+                " provided or values are identical"
+                " to existing ones"
             )
 
         for key, value in schema.items():
@@ -149,9 +157,13 @@ class BaseRepository:
         logger.debug(f"Updating column '{column}' of {self.model.__name__} ID={id} with value: {value}")
         result = await self.get_model_by_id(self.session, id, use_select)
         if not result:
-            raise NotFoundError(detail=f"Resource with id={id} not found")
+            raise exceptions.not_found(
+                detail=f"Resource with id={id} not found"
+            )
         if value == getattr(result, column):
-            raise BadRequestError(detail="No changes detected")
+            raise exceptions.bad_request(
+                detail="No changes detected"
+            )
 
         stmt = update(self.model).where(self.model.id == id).values({column: value})
         try:
@@ -162,13 +174,17 @@ class BaseRepository:
             return result
         except IntegrityError as e:
             error_message = ":".join(str(e.orig).replace("\n", " ").split(":")[1:])
-            raise DuplicatedError(detail=error_message)
+            raise exceptions.duplicated_error(
+                detail=error_message
+            )
 
     async def delete_by_id(self, id: Union[UUID, int], use_select: bool = False):
         logger.debug(f"Deleting {self.model.__name__} ID={id}")
         result = await self.get_model_by_id(self.session, id, use_select)
         if not result:
-            raise NotFoundError(detail=f"not found id: {id}")
+            raise exceptions.not_found(
+                detail=f"not found id: {id}"
+            )
         await self.session.delete(result)
         await self.session.commit()
         logger.info(f"{self.model.__name__} with ID={id} successfully deleted")

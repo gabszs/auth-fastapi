@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.cache import cache_manager
 from app.core.database import get_db
 from app.core.database import sessionmanager
-from app.core.exceptions import AuthError
+from app.core.exceptions import exceptions
 from app.core.security import JWTBearer
 from app.core.settings import settings
 from app.models import User
@@ -32,16 +32,16 @@ async def get_current_user(
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
         token_data = Payload(**payload)
     except (jwt.JWTError, ValidationError):
-        raise AuthError(detail="Could not validate credentials")
+        raise exceptions.auth_error(detail="Could not validate credentials")
     current_user: User = await service.get_by_id(token_data.id)  # type: ignore
     if not current_user:
-        raise AuthError(detail="User not found")
+        raise exceptions.auth_error(detail="User not found")
     return current_user
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
     if not current_user.is_active:
-        raise AuthError("Inactive user")
+        raise exceptions.auth_error("Inactive user")
     return current_user
 
 
