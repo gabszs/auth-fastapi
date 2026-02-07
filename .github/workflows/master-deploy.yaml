@@ -73,6 +73,9 @@ jobs:
       - name: Push Docker Image to Docker Hub
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }} --all-tags
 
+      - name: Trigger Portainer Webhook
+        run: curl -X POST ${{ secrets.PORTAINER_WEBHOOK_URL }}
+
       - name: Checkout GitOps Branch
         run: |
           git fetch origin
@@ -92,6 +95,3 @@ jobs:
           git add k8s/deployment.yaml
           git commit -m "Updating the image tag: ${{ env.IMAGE_TAG }}"
           git push origin gitops
-
-      - name: Trigger Portainer Webhook
-        run: curl -X POST ${{ secrets.PORTAINER_WEBHOOK_URL }}
