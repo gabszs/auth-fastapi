@@ -5,11 +5,11 @@ services:
       - "8000:80"
     env_file:
       - stack.env
-    depends_on:
-      database:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+    # depends_on:
+    #   database:
+    #     condition: service_healthy
+    #   redis:
+    #     condition: service_healthy
     restart: unless-stopped
 
   # database:
