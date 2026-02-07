@@ -92,3 +92,6 @@ jobs:
           git add k8s/deployment.yaml
           git commit -m "Updating the image tag: ${{ env.IMAGE_TAG }}"
           git push origin gitops
+
+      - name: Trigger Portainer Webhook
+        run: curl -X POST ${{ secrets.PORTAINER_WEBHOOK_URL }}
