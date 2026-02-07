@@ -1,6 +1,6 @@
 services:
   app:
-    image: gabszs/auth_converter:latest
+    image: gabzsz/auth_converter:latest
     ports:
       - "8000:80"
     env_file:
