@@ -1,12 +1,17 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter
 
 from app.core.telemetry import logger
-from app.schemas.base_schema import Message
+from app.schemas.base_schema import HealthResponse
 
-router = APIRouter(prefix="/healthcheck", tags=["Health"])
+router = APIRouter(tags=["Health"])
 
 
-@router.get("", response_model=Message)
+@router.get("/health", response_model=HealthResponse)
 async def ping():
     logger.info("Healthcheck triggered successfully")
-    return Message(detail="Success")
+    return {
+        "status": "ok",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
