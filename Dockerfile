@@ -33,4 +33,3 @@ COPY alembic.ini ./
 EXPOSE 80
 
 CMD [ "sh", "-c", "alembic upgrade head && opentelemetry-instrument uvicorn --proxy-headers --host 0.0.0.0 --port 80 app.main:app"]
-# CMD ["opentelemetry-instrument", "uvicorn", "--host", "0.0.0.0", "--port", "80", "app.main:app"]
