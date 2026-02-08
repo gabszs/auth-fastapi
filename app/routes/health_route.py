@@ -4,10 +4,9 @@ from datetime import timezone
 from fastapi import APIRouter
 
 from app.core.telemetry import logger
-from app.core.telemetry import PyroscopeRoute
 from app.schemas.base_schema import HealthResponse
 
-router = APIRouter(tags=["Health"], route_class=PyroscopeRoute)
+router = APIRouter(tags=["Health"])
 
 
 @router.get("/health", response_model=HealthResponse)

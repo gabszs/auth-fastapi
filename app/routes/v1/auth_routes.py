@@ -3,13 +3,12 @@ from fastapi import APIRouter
 from app.core.dependencies import AuthServiceDependency
 from app.core.dependencies import CurrentUserDependency
 from app.core.telemetry import logger
-from app.core.telemetry import PyroscopeRoute
 from app.schemas.auth_schema import SignIn
 from app.schemas.auth_schema import SignInResponse
 from app.schemas.auth_schema import SignUp
 from app.schemas.user_schema import User as UserSchema
 
-router = APIRouter(prefix="/auth", tags=["Auth"], route_class=PyroscopeRoute)
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/sign-in", response_model=SignInResponse)

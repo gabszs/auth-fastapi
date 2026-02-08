@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 
 import pyroscope
 from fastapi import FastAPI
-from fastapi import Request
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from opentelemetry import trace
@@ -11,7 +10,8 @@ from pyroscope.otel import PyroscopeSpanProcessor
 from redis import asyncio as aioredis
 
 from app.core.database import sessionmanager
-from app.core.middleware import otel_setup
+from app.core.middleware import OtelMiddleware
+from app.core.middleware import PyroscopeMiddleware
 from app.core.settings import settings
 from app.core.telemetry import logger
 from app.routes import app_routes
@@ -69,9 +69,8 @@ def init_app(init_db=True):
         lifespan=lifespan,
     )
 
-    @app.middleware("http")
-    async def otel_setup_middleware(request: Request, call_next):
-        return await otel_setup(request, call_next)
+    app.add_middleware(PyroscopeMiddleware)
+    app.add_middleware(OtelMiddleware)
 
     app.include_router(app_routes)
 

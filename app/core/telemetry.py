@@ -6,10 +6,6 @@ from typing import Callable
 from typing import Dict
 from typing import Optional
 
-import pyroscope
-from fastapi import Request
-from fastapi import Response
-from fastapi.routing import APIRoute
 from opentelemetry import trace
 from opentelemetry.semconv._incubating.attributes.code_attributes import (
     CODE_FILEPATH,
@@ -21,21 +17,6 @@ from opentelemetry.trace import Tracer
 
 
 logger = logging.getLogger()
-
-
-class PyroscopeRoute(APIRoute):
-    def get_route_handler(self):
-        original_handler = super().get_route_handler()
-
-        async def custom_handler(request: Request) -> Response:
-            route = request.scope.get("route")
-            template = getattr(route, "path_format", getattr(route, "path", request.url.path))
-            method = request.method
-            tag = f"{method}:{template}"
-            with pyroscope.tag_wrapper({"endpoint": tag}):
-                return await original_handler(request)
-
-        return custom_handler
 
 
 class TracingDecoratorOptions:
