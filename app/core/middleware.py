@@ -45,16 +45,16 @@ class OtelMiddleware(BaseHTTPMiddleware):
 
         event: dict = {
             # Service attributes
-            "service.environment": settings.OTEL_SERVICE_NAMESPACE,
-            "service.owner.name": settings.SERVICE_OWNER_NAME,
-            "service.owner.url": settings.SERVICE_OWNER_URL,
-            "service.owner.contact": settings.SERVICE_OWNER_CONTACT,
-            "service.owner.discord": settings.SERVICE_OWNER_DISCORD,
-            "service.version": settings.SERVICE_VERSION,
-            "service.build.git_hash": settings.COMMIT_HASH,
-            "service.build.git_branch": settings.COMMIT_BRANCH,
-            "service.build.deployment.user": settings.DEPLOYMENT_USER,
-            "service.build.deployment.trigger": settings.DEPLOYMENT_TRIGGER,
+            # "service.environment": settings.OTEL_SERVICE_NAMESPACE,
+            # "service.owner.name": settings.SERVICE_OWNER_NAME,
+            # "service.owner.url": settings.SERVICE_OWNER_URL,
+            # "service.owner.contact": settings.SERVICE_OWNER_CONTACT,
+            # "service.owner.discord": settings.SERVICE_OWNER_DISCORD,
+            # "service.version": settings.SERVICE_VERSION,
+            # "service.build.git_hash": settings.COMMIT_HASH,
+            # "service.build.git_branch": settings.COMMIT_BRANCH,
+            # "service.build.deployment.user": settings.DEPLOYMENT_USER,
+            # "service.build.deployment.trigger": settings.DEPLOYMENT_TRIGGER,
             # Client geo attributes (from Cloudflare headers)
             "client.geo.country.iso_code": request.headers.get("cf-ipcountry", ""),
             "client.geo.locality.name": request.headers.get("cf-ipcity", ""),
