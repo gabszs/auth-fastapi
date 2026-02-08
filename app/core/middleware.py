@@ -83,7 +83,9 @@ class OtelMiddleware(BaseHTTPMiddleware):
             # Request attributes
             "http.request.id": request.headers.get("cf-ray", ""),
             "client.address": client_address,
-            **({"http.request.body": request_body} if request_body is not None else {}),
+            "http.request.body": request_body,
+            "test.body": {"hello": "world", "number": 123, "list": [1, 2, 3], "dict": {"key": "value"}},
+            # **({"http.request.body": request_body} if request_body is not None else {}),
         }
 
         request.state.wide_event = event
