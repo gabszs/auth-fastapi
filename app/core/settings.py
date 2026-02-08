@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     # open-telemetry, please do not fill
     OTEL_SERVICE_NAME: str
     OTEL_PYTHON_LOG_LEVEL: str = "INFO"
+    OTEL_EXPORTER_OTLP_ENDPOINT: str = ""
     OTEL_SERVICE_NAMESPACE: str = "development"
     SERVICE_OWNER_NAME: str = ""
     SERVICE_OWNER_URL: str = ""
@@ -42,6 +43,10 @@ class Settings(BaseSettings):
     COMMIT_BRANCH: str = ""
     DEPLOYMENT_USER: str = ""
     DEPLOYMENT_TRIGGER: str = ""
+
+    PYROSCOPE_SERVER_ADDRESS: str = ""
+    PYROSCOPE_BASIC_AUTH_USERNAME: str = ""
+    PYROSCOPE_BASIC_AUTH_PASSWORD: str = ""
 
     # swagger app config settings
     title: str = "auth-Api"

@@ -1,10 +1,13 @@
 import logging
 from contextlib import asynccontextmanager
 
+import pyroscope
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from opentelemetry import trace
+from pyroscope.otel import PyroscopeSpanProcessor
 from redis import asyncio as aioredis
 
 from app.core.database import sessionmanager
@@ -12,6 +15,17 @@ from app.core.middleware import otel_setup
 from app.core.settings import settings
 from app.core.telemetry import logger
 from app.routes import app_routes
+
+pyroscope.configure(
+    application_name=settings.OTEL_SERVICE_NAME,
+    server_address=settings.PYROSCOPE_SERVER_ADDRESS,
+    basic_auth_username=settings.PYROSCOPE_BASIC_AUTH_USERNAME,
+    basic_auth_password=settings.PYROSCOPE_BASIC_AUTH_PASSWORD,
+    tags={"service.namespace": settings.OTEL_SERVICE_NAMESPACE},
+)
+
+provider = trace.get_tracer_provider()
+provider.add_span_processor(PyroscopeSpanProcessor())
 
 
 @asynccontextmanager

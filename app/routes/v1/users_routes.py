@@ -8,8 +8,9 @@ from app.core.cache import cache_key_builder
 from app.core.dependencies import CurrentUserDependency
 from app.core.dependencies import FindBase
 from app.core.dependencies import UserServiceDependency
-from app.core.telemetry import logger
 from app.core.security import authorize
+from app.core.telemetry import logger
+from app.core.telemetry import PyroscopeRoute
 from app.models.models_enums import UserRoles
 from app.schemas.base_schema import Message
 from app.schemas.user_schema import BaseUserWithPassword
@@ -17,7 +18,7 @@ from app.schemas.user_schema import FindUserResult
 from app.schemas.user_schema import UpsertUser
 from app.schemas.user_schema import User
 
-router = APIRouter(prefix="/user", tags=["user"])
+router = APIRouter(prefix="/user", tags=["user"], route_class=PyroscopeRoute)
 
 
 @router.get("/", response_model=FindUserResult)

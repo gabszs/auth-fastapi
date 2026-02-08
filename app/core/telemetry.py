@@ -6,11 +6,36 @@ from typing import Callable
 from typing import Dict
 from typing import Optional
 
+import pyroscope
+from fastapi import Request
+from fastapi import Response
+from fastapi.routing import APIRoute
 from opentelemetry import trace
-from opentelemetry.semconv.trace import SpanAttributes
+from opentelemetry.semconv._incubating.attributes.code_attributes import (
+    CODE_FILEPATH,
+    CODE_FUNCTION,
+    CODE_LINENO,
+    CODE_NAMESPACE,
+)
 from opentelemetry.trace import Tracer
 
+
 logger = logging.getLogger()
+
+
+class PyroscopeRoute(APIRoute):
+    def get_route_handler(self):
+        original_handler = super().get_route_handler()
+
+        async def custom_handler(request: Request) -> Response:
+            route = request.scope.get("route")
+            template = getattr(route, "path_format", getattr(route, "path", request.url.path))
+            method = request.method
+            tag = f"{method}:{template}"
+            with pyroscope.tag_wrapper({"endpoint": tag}):
+                return await original_handler(request)
+
+        return custom_handler
 
 
 class TracingDecoratorOptions:
@@ -111,10 +136,10 @@ def instrument(
         tracer = existing_tracer or trace.get_tracer(func_or_class.__module__)
 
         def _set_semantic_attributes(span, func: Callable):
-            span.set_attribute(SpanAttributes.CODE_NAMESPACE, func.__module__)
-            span.set_attribute(SpanAttributes.CODE_FUNCTION, func.__qualname__)
-            span.set_attribute(SpanAttributes.CODE_FILEPATH, func.__code__.co_filename)
-            span.set_attribute(SpanAttributes.CODE_LINENO, func.__code__.co_firstlineno)
+            span.set_attribute(CODE_NAMESPACE, func.__module__)
+            span.set_attribute(CODE_FUNCTION, func.__qualname__)
+            span.set_attribute(CODE_FILEPATH, func.__code__.co_filename)
+            span.set_attribute(CODE_LINENO, func.__code__.co_firstlineno)
 
         def _set_attributes(span, attributes_dict):
             if attributes_dict:

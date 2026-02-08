@@ -24,6 +24,7 @@ dependencies = [
     "fastapi-cache2[redis] (>=0.2.2,<0.3.0)",
     "opentelemetry-distro (>=0.60b1,<0.61)",
     "opentelemetry-exporter-otlp (>=1.39.1,<2.0.0)",
+    "pyroscope-otel (>=0.4.1,<0.5.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]

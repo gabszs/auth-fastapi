@@ -1,4 +1,4 @@
-FROM python:3.13-alpine as builder
+FROM python:3.13-slim-bookworm as builder
 
 RUN pip install poetry==2.1.3
 
@@ -18,7 +18,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 # Nota: opentelemetry-bootstrap geralmente baixa pacotes.
 RUN opentelemetry-bootstrap -a install
 
-FROM python:3.13-alpine as runtime
+FROM python:3.13-slim-bookworm as runtime
 
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
