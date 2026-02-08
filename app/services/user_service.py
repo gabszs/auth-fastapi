@@ -6,7 +6,7 @@ from app.schemas.user_schema import BaseUserWithPassword
 from app.services.base_service import BaseService
 
 
-@instrument
+@instrument(pyroscope_tagging=True)
 class UserService(BaseService):
     def __init__(self, user_repository: UserRepository, cache: CacheManager) -> None:
         self.user_repository = user_repository

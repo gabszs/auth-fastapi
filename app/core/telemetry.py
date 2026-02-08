@@ -6,6 +6,8 @@ from typing import Callable
 from typing import Dict
 from typing import Optional
 
+import pyroscope
+
 from opentelemetry import trace
 from opentelemetry.semconv._incubating.attributes.code_attributes import (
     CODE_FILEPATH,
@@ -50,6 +52,8 @@ def instrument(
     attributes: Optional[Dict[str, str]] = None,
     existing_tracer: Tracer = None,
     ignore=False,
+    pyroscope_tagging: bool = False,
+    pyroscope_tags: Optional[Dict[str, str]] = None,
 ):
     """
     A decorator to instrument a class or function with an OTEL tracing span.
@@ -67,6 +71,7 @@ def instrument(
     """
 
     def decorate_class(cls):
+        cls_pyroscope_tags = {**(pyroscope_tags or {}), "class": cls.__name__} if pyroscope_tagging or pyroscope_tags else None
         for name, method in inspect.getmembers(cls, inspect.isfunction):
             # Ignore private functions, TODO: maybe make this a setting?
             if not name.startswith("_"):
@@ -79,6 +84,8 @@ def instrument(
                                 record_exception=record_exception,
                                 attributes=attributes,
                                 existing_tracer=existing_tracer,
+                                pyroscope_tagging=pyroscope_tagging,
+                                pyroscope_tags=cls_pyroscope_tags,
                             )(method)
                         ),
                     )
@@ -90,6 +97,8 @@ def instrument(
                             record_exception=record_exception,
                             attributes=attributes,
                             existing_tracer=existing_tracer,
+                            pyroscope_tagging=pyroscope_tagging,
+                            pyroscope_tags=cls_pyroscope_tags,
                         )(method),
                     )
 
@@ -127,6 +136,14 @@ def instrument(
                 for att in attributes_dict:
                     span.set_attribute(att, attributes_dict[att])
 
+        def _build_pyroscope_tags(func_name):
+            tags = {}
+            if pyroscope_tagging:
+                tags["function"] = func_name
+            if pyroscope_tags:
+                tags.update(pyroscope_tags)
+            return tags
+
         @wraps(func_or_class)
         def wrap_with_span_sync(*args, **kwargs):
             name = span_name or TracingDecoratorOptions.naming_scheme(func_or_class)
@@ -134,6 +151,10 @@ def instrument(
                 _set_semantic_attributes(span, func_or_class)
                 _set_attributes(span, TracingDecoratorOptions.default_attributes)
                 _set_attributes(span, attributes)
+                p_tags = _build_pyroscope_tags(name)
+                if p_tags:
+                    with pyroscope.tag_wrapper(p_tags):
+                        return func_or_class(*args, **kwargs)
                 return func_or_class(*args, **kwargs)
 
         @wraps(func_or_class)
@@ -143,6 +164,10 @@ def instrument(
                 _set_semantic_attributes(span, func_or_class)
                 _set_attributes(span, TracingDecoratorOptions.default_attributes)
                 _set_attributes(span, attributes)
+                p_tags = _build_pyroscope_tags(name)
+                if p_tags:
+                    with pyroscope.tag_wrapper(p_tags):
+                        return await func_or_class(*args, **kwargs)
                 return await func_or_class(*args, **kwargs)
 
         if ignore:

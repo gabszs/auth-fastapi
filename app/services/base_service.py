@@ -13,7 +13,7 @@ from app.schemas.base_schema import FindBase
 logger = logging.getLogger(__name__)
 
 
-@instrument
+@instrument(pyroscope_tagging=True)
 class BaseService:
     def __init__(self, repository: BaseRepository, cache: CacheManager) -> None:
         self._repository = repository
