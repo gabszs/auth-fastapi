@@ -7,14 +7,11 @@ from typing import Dict
 from typing import Optional
 
 import pyroscope
-
 from opentelemetry import trace
-from opentelemetry.semconv._incubating.attributes.code_attributes import (
-    CODE_FILEPATH,
-    CODE_FUNCTION,
-    CODE_LINENO,
-    CODE_NAMESPACE,
-)
+from opentelemetry.semconv._incubating.attributes.code_attributes import CODE_FILEPATH
+from opentelemetry.semconv._incubating.attributes.code_attributes import CODE_FUNCTION
+from opentelemetry.semconv._incubating.attributes.code_attributes import CODE_LINENO
+from opentelemetry.semconv._incubating.attributes.code_attributes import CODE_NAMESPACE
 from opentelemetry.trace import Tracer
 
 
@@ -71,7 +68,9 @@ def instrument(
     """
 
     def decorate_class(cls):
-        cls_pyroscope_tags = {**(pyroscope_tags or {}), "class": cls.__name__} if pyroscope_tagging or pyroscope_tags else None
+        cls_pyroscope_tags = (
+            {**(pyroscope_tags or {}), "class": cls.__name__} if pyroscope_tagging or pyroscope_tags else None
+        )
         for name, method in inspect.getmembers(cls, inspect.isfunction):
             # Ignore private functions, TODO: maybe make this a setting?
             if not name.startswith("_"):

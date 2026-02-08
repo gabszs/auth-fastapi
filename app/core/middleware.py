@@ -7,7 +7,6 @@ from opentelemetry import trace
 from opentelemetry.trace import get_current_span
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.core.settings import settings
 # from device_detector import DeviceDetector
 
 tracer = trace.get_tracer(__name__)
@@ -36,10 +35,11 @@ class OtelMiddleware(BaseHTTPMiddleware):
         # ua = DeviceDetector(user_agent_str).parse() if user_agent_str else None
         sec_ch_ua_platform = request.headers.get("sec-ch-ua-platform", "")
 
-        # Extrai o body se existir
-        request_body = None
+        # Extrai o body raw como string
+        request_body = ""
         try:
-            request_body = await request.json()
+            raw = await request.body()
+            request_body = raw.decode("utf-8") if raw else ""
         except Exception:
             pass
 
@@ -84,7 +84,6 @@ class OtelMiddleware(BaseHTTPMiddleware):
             "http.request.id": request.headers.get("cf-ray", ""),
             "client.address": client_address,
             "http.request.body": request_body,
-            "test.body": {"hello": "world", "number": 123, "list": [1, 2, 3], "dict": {"key": "value"}},
             # **({"http.request.body": request_body} if request_body is not None else {}),
         }
 

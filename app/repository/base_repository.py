@@ -1,14 +1,18 @@
-from typing import Any, Union
+from typing import Any
+from typing import Union
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr
-from sqlalchemy import select, update
+from pydantic import BaseModel
+from pydantic import EmailStr
+from sqlalchemy import select
+from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.core.exceptions import exceptions
-from app.core.telemetry import instrument, logger
+from app.core.telemetry import instrument
+from app.core.telemetry import logger
 from app.schemas.base_schema import FindBase
 
 
