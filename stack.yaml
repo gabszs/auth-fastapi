@@ -13,7 +13,7 @@ services:
   database:
     image: postgres:16-alpine
     ports:
-      - 5443:80
+      - 5443:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
     command:
