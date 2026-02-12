@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: auth-converter
-          image: gabzsz/auth_converter:348cd04
+          image: gabzsz/auth_converter:60d5def
           ports:
             - containerPort: 80
           envFrom:
