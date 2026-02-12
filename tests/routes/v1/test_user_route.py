@@ -11,7 +11,7 @@ from tests.helpers import setup_users_data
 from tests.helpers import validate_datetime
 from tests.schemas import UserSchemaWithHashedPassword
 
-base_users_url: str = "/v1/user"
+base_users_url: str = "/v1/users"
 datetime_params = {
     "created_after": None,
     "created_before": None,
@@ -488,7 +488,7 @@ async def test_get_user_by_id_cache_same_user_own_access(client: AsyncClient, no
 @pytest.mark.anyio
 async def test_get_user_with_cache_behavior(client, normal_user, admin_user_token):
     user_id = normal_user.id
-    url = f"/v1/user/{user_id}"
+    url = f"/v1/users/{user_id}"
 
     response_1 = await client.get(url, headers=admin_user_token)
     assert response_1.status_code == 200
