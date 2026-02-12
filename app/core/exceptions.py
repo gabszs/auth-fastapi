@@ -71,4 +71,4 @@ class AppExceptions:
         return HTTPException(status.HTTP_401_UNAUTHORIZED, detail, headers)
 
 
-exceptions = AppExceptions()
+http_errors = AppExceptions()

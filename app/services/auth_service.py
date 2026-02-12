@@ -2,7 +2,7 @@ from datetime import timedelta
 from typing import List
 
 from app.core.cache import CacheManager
-from app.core.exceptions import exceptions
+from app.core.exceptions import http_errors
 from app.core.security import create_access_token
 from app.core.security import get_password_hash
 from app.core.security import verify_password
@@ -27,11 +27,11 @@ class AuthService(BaseService):
     async def sign_in(self, sign_in_info: SignIn):
         user: List[User] = await self.user_repository.read_by_email(email=sign_in_info.email, unique=True)
         if not user:
-            raise exceptions.invalid_credentials(detail="Incorrect email or user not exist")
+            raise http_errors.invalid_credentials(detail="Incorrect email or user not exist")
         found_user = user[0]
 
         if not verify_password(sign_in_info.password, found_user.password):
-            raise exceptions.invalid_credentials(detail="Incorrect password")
+            raise http_errors.invalid_credentials(detail="Incorrect password")
 
         delattr(found_user, "password")
 
@@ -70,10 +70,3 @@ class AuthService(BaseService):
             user_info=current_user,
         )
         return sign_in_result
-
-
-#  payload = Payload(id=str(found_user.id), email=found_user.email, username=found_user.username)
-#         token_lifespan = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-#         access_token, expiration_datetime = create_access_token(payload.model_dump(), token_lifespan)
-#         sign_in_result = SignInResponse(access_token=access_token, expiration=expiration_datetime, user_info=found_user)
-#         return sign_in_result
