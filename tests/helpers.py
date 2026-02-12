@@ -16,7 +16,7 @@ from tests.schemas import UserSchemaWithHashedPassword
 
 
 base_auth_route: str = "/v1/auth"
-base_users_url: str = "/v1/user"
+base_users_url: str = "/v1/users"
 
 
 def validate_datetime(data_string):
