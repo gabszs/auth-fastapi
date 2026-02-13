@@ -107,6 +107,7 @@ async def get_user_token(client: AsyncClient, user: UserSchemaWithHashedPassword
     return {"Authorization": f"Bearer {response.json()['access_token']}"}
 
 
-async def get_user_by_index(client, index: int = 0, token_header: Optional[str] = None):
-    response = await client.get(f"{base_users_url}/?ordering=username", headers=token_header)
+async def get_user_by_index(index: int = 0, token_header: Optional[str] = None):
+    import httpx
+    response = httpx.get(f"{base_users_url}/?ordering=username", headers=token_header)
     return response.json()["data"][index]
