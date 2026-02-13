@@ -4,6 +4,7 @@ from typing import Generator
 from typing import List
 from typing import Optional
 from typing import Union
+from unittest.mock import patch
 from uuid import UUID
 from uuid import uuid4
 
@@ -94,6 +95,17 @@ def anyio_backend() -> str:
 async def client() -> AsyncGenerator:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="https://test") as client:
         yield client
+
+
+@pytest.fixture
+def mock_http_client():
+    """Fixture para mockar o cliente HTTP global nos testes."""
+    with patch("app.core.http_client.get_http_client") as mock_get_client:
+        from unittest.mock import AsyncMock
+
+        mock_client = AsyncMock()
+        mock_get_client.return_value = mock_client
+        yield mock_client
 
 
 @pytest.fixture(autouse=True, scope="session")

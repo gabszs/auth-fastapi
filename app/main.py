@@ -10,7 +10,7 @@ from pyroscope.otel import PyroscopeSpanProcessor
 from redis import asyncio as aioredis
 
 from app.core.database import sessionmanager
-from app.core.http_client import close_http_client
+from app.core.http_client import http_client
 from app.core.middleware import OtelMiddleware
 from app.core.middleware import PyroscopeMiddleware
 from app.core.settings import settings
@@ -62,7 +62,8 @@ def init_app(init_db=True):
             logger.info(f"{settings.PROJECT_NAME} shutdown completed.")
             if sessionmanager._engine is not None:
                 await sessionmanager.close()
-            await close_http_client()
+            if http_client is not None:
+                await http_client.aclose()
 
     app = FastAPI(
         title=settings.title,
