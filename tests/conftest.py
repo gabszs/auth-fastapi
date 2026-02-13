@@ -8,6 +8,7 @@ from uuid import UUID
 from uuid import uuid4
 
 import pytest
+from app.core.http_client import set_http_client
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
 from httpx import ASGITransport
@@ -92,8 +93,10 @@ def anyio_backend() -> str:
 
 @pytest.fixture
 async def client() -> AsyncGenerator:
+    set_http_client(None)  # Reset cliente global antes de cada teste
     async with AsyncClient(transport=ASGITransport(app=app), base_url="https://test") as client:
         yield client
+    set_http_client(None)  # Reset após o teste
 
 
 @pytest.fixture(autouse=True, scope="session")
