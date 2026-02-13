@@ -174,7 +174,7 @@ async def test_get_user_by_id_should_return_404_NOT_FOUND_GET(session, random_uu
 @pytest.mark.anyio
 async def test_create_normal_user_should_return_422_unprocessable_entity_POST(client):
     response = await client.post(
-        f"{base_users_url}/",
+        f"{base_users_url}",
     )
 
     assert response.status_code == 422
@@ -183,7 +183,7 @@ async def test_create_normal_user_should_return_422_unprocessable_entity_POST(cl
 @pytest.mark.anyio
 async def test_create_normal_user_should_return_201_POST(client, session, factory_user):
     response = await client.post(
-        f"{base_users_url}/",
+        f"{base_users_url}",
         json={
             "email": factory_user.email,
             "username": factory_user.username,
@@ -203,7 +203,7 @@ async def test_create_normal_user_should_return_201_POST(client, session, factor
 @pytest.mark.anyio
 async def test_create_normal_user_should_return_409_email_already_registered_POST(client, session, normal_user):
     response = await client.post(
-        f"{base_users_url}/",
+        f"{base_users_url}",
         json={
             "email": normal_user.email,
             "username": "different_username",
@@ -218,7 +218,7 @@ async def test_create_normal_user_should_return_409_email_already_registered_POS
 @pytest.mark.anyio
 async def test_create_normal_user_should_return_409_username_already_registered_POST(client, session, normal_user):
     response = await client.post(
-        f"{base_users_url}/",
+        f"{base_users_url}",
         json={
             "email": "different@email.com",
             "username": normal_user.username,

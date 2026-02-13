@@ -20,7 +20,7 @@ from app.schemas.user_schema import User
 router = APIRouter(prefix="/users", tags=["user"])
 
 
-@router.get("/", response_model=FindUserResult)
+@router.get("", response_model=FindUserResult)
 @authorize(role=[UserRoles.MODERATOR, UserRoles.ADMIN, UserRoles.BASE_USER])
 async def get_user_list(
     service: UserServiceDependency,
@@ -43,7 +43,7 @@ async def get_by_id(
     return await service.get_by_id(id)
 
 
-@router.post("/", status_code=201, response_model=User)
+@router.post("", status_code=201, response_model=User)
 async def create_user(user: BaseUserWithPassword, service: UserServiceDependency):
     logger.info("POST /user/ - email=%s", user.email)
     return await service.add(user)
