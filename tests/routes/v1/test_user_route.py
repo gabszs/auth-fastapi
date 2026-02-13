@@ -49,7 +49,7 @@ async def test_get_all_users_should_return_200_OK_GET(
     setup_users = await setup_users_data(session=session, model_args=batch_setup_users)
     setup_users = await get_input_complete_list(client, moderator_user_token, setup_users)
     response = await client.get(
-        f"{base_users_url}/?{urlencode(default_username_search_options)}",
+        f"{base_users_url}?{urlencode(default_username_search_options)}",
         headers=moderator_user_token,
     )
     response_json = response.json()
@@ -82,7 +82,7 @@ async def test_get_all_users_with_page_size_should_return_200_OK_GET(
     setup_users = await get_input_complete_list(client, moderator_user_token, setup_users)
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_find_parameters)}",
+        f"{base_users_url}?{urlencode(query_find_parameters)}",
         headers=moderator_user_token,
     )
     response_json = response.json()
@@ -118,7 +118,7 @@ async def test_get_all_users_with_pagination_should_return_200_OK_GET(
     setup_users = await get_input_complete_list(client, moderator_user_token, setup_users)
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_find_parameters)}",
+        f"{base_users_url}?{urlencode(query_find_parameters)}",
         headers=moderator_user_token,
     )
     response_json = response.json()
@@ -296,7 +296,7 @@ async def test_enable_user_different_user_should_return_403_FORBIDDEN_PATCH(
 async def test_delete_user_should_return_200_OK_DELETE(session, client, normal_user, admin_user_token):
     response = await client.delete(f"{base_users_url}/{normal_user.id}", headers=admin_user_token)
     get_users_response = await client.get(
-        f"{base_users_url}/?offset=0&limit=100",
+        f"{base_users_url}?offset=0&limit=100",
         headers=admin_user_token,
     )
 
@@ -835,7 +835,7 @@ async def test_get_users_with_conflicting_after_filters_should_return_422_GET(
     }
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_params)}",
+        f"{base_users_url}?{urlencode(query_params)}",
         headers=moderator_user_token,
     )
 
@@ -855,7 +855,7 @@ async def test_get_users_with_conflicting_before_filters_should_return_422_GET(
     }
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_params)}",
+        f"{base_users_url}?{urlencode(query_params)}",
         headers=moderator_user_token,
     )
 
@@ -876,7 +876,7 @@ async def test_get_users_with_invalid_date_range_should_return_422_GET(
     }
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_params)}",
+        f"{base_users_url}?{urlencode(query_params)}",
         headers=moderator_user_token,
     )
 
@@ -897,7 +897,7 @@ async def test_get_users_with_valid_date_range_after_before_should_return_200_GE
     }
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_params)}",
+        f"{base_users_url}?{urlencode(query_params)}",
         headers=moderator_user_token,
     )
 
@@ -918,7 +918,7 @@ async def test_get_users_with_valid_date_range_on_or_after_on_or_before_should_r
     }
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_params)}",
+        f"{base_users_url}?{urlencode(query_params)}",
         headers=moderator_user_token,
     )
 
@@ -939,7 +939,7 @@ async def test_get_users_with_mixed_valid_date_range_should_return_200_GET(
     }
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_params)}",
+        f"{base_users_url}?{urlencode(query_params)}",
         headers=moderator_user_token,
     )
 
@@ -960,7 +960,7 @@ async def test_get_users_with_mixed_invalid_date_range_should_return_422_GET(
     }
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_params)}",
+        f"{base_users_url}?{urlencode(query_params)}",
         headers=moderator_user_token,
     )
 
@@ -975,7 +975,7 @@ async def test_get_users_with_only_created_after_should_return_200_GET(
     query_params = {"created_after": "2024-01-01T00:00:00", "page": 1, "page_size": 10}
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_params)}",
+        f"{base_users_url}?{urlencode(query_params)}",
         headers=moderator_user_token,
     )
 
@@ -990,7 +990,7 @@ async def test_get_users_with_only_created_before_should_return_200_GET(
     query_params = {"created_before": "2024-12-31T23:59:59", "page": 1, "page_size": 10}
 
     response = await client.get(
-        f"{base_users_url}/?{urlencode(query_params)}",
+        f"{base_users_url}?{urlencode(query_params)}",
         headers=moderator_user_token,
     )
 
