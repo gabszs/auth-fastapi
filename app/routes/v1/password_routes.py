@@ -12,7 +12,7 @@ from tenacity import wait_exponential
 
 from app.core.dependencies import CurrentUserDependency
 from app.core.exceptions import http_errors
-from app.core.http_client import http_client
+from app.core.http_client import get_http_client
 from app.core.telemetry import logger
 
 router = APIRouter(prefix="/passwords", tags=["Password"])
@@ -32,7 +32,8 @@ async def fetch_password():
         "quantity": 1,
         "has_punctuation": "true",
     }
-    response = await http_client.get(url, params=params)
+    client = await get_http_client()
+    response = await client.get(url, params=params)
     if response.status_code >= 400:
         raise http_errors.bad_request("Error while fetching the API")
     data = response.json()
