@@ -1787,6 +1787,26 @@ packaging = ">=18.0"
 wrapt = ">=1.0.0,<2.0.0"
 
 [[package]]
+name = "opentelemetry-instrumentation-system-metrics"
+version = "0.60b1"
+description = "OpenTelemetry System Metrics Instrumentation"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "opentelemetry_instrumentation_system_metrics-0.60b1-py3-none-any.whl", hash = "sha256:21fb040ed6cfabc8ca97c63548fd01689f7ec92c64bbc6cfd08f30489a336fc6"},
+    {file = "opentelemetry_instrumentation_system_metrics-0.60b1.tar.gz", hash = "sha256:b9c3a40f31f20c694c386bd28fa0eed5268532bb78f545bbd8e23bbe99d81e09"},
+]
+
+[package.dependencies]
+opentelemetry-api = ">=1.11,<2.0"
+opentelemetry-instrumentation = "0.60b1"
+psutil = ">=5.9.0,<8"
+
+[package.extras]
+instruments = ["psutil (>=5)"]
+
+[[package]]
 name = "opentelemetry-proto"
 version = "1.39.1"
 description = "OpenTelemetry Python Proto"
@@ -2048,7 +2068,7 @@ version = "6.1.1"
 description = "Cross-platform lib for process and system monitoring in Python."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
-groups = ["dev"]
+groups = ["main", "dev"]
 files = [
     {file = "psutil-6.1.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:9ccc4316f24409159897799b83004cb1e24f9819b0dcf9c0b68bdcb6cefee6a8"},
     {file = "psutil-6.1.1-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:ca9609c77ea3b8481ab005da74ed894035936223422dc591d6772b147421f777"},
@@ -3315,4 +3335,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.15"
-content-hash = "b7aa9e3f7be0f8bebbbdb909cb1de043b1397a444fa1dd9c0223509528297b0c"
+content-hash = "2a397ae05914675da3b92f8d59763cc335c324a9f74de2ce3235e6020bf59b7a"
