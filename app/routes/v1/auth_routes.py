@@ -52,7 +52,7 @@ async def sign_in(user_info: SignIn, service: AuthServiceDependency):
     logger.info("INFO sign-in", extra=extra)
     logger.warning("WARN sign-in", extra=extra)
     logger.error("ERROR sign-in", extra=extra)
-    logger.critical("FATAL sign-in", extra=extra)
+    logger.critical("CRITICAL sign-in", extra=extra)
 
     return await service.sign_in(user_info)
 
